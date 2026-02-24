@@ -10,10 +10,10 @@ class UserBase(BaseModel):
     role: str
 
     @field_validator("role")
-    def validate_role(cls, v):
-        if v not in ROLES:
+    def validate_role(cls, i):
+        if i not in ROLES:
             raise ValueError(f"Rôle invalide. Choisir parmi : {ROLES}")
-        return v
+        return i
 
 class UserCreate(UserBase):
     pass
