@@ -18,9 +18,10 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     pass
 
-class UserUpdate(BaseModel):
+class UserUpdate(UserBase):
     nom: str | None = None
     prenom: str | None = None
+    email: EmailStr | None = None
     role: str | None = None
 
 class UserRead(UserBase):
