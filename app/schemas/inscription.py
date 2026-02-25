@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 class InscriptionBase(BaseModel):
     session_id: int
@@ -9,8 +10,8 @@ class InscriptionCreate(InscriptionBase):
     pass
 
 class InscriptionUpdate(InscriptionBase):
-    session_id: int | None = None
-    apprenant_id: int  | None = None
+    session_id: Optional[int] = None
+    apprenant_id: Optional[int] = None
 
 class InscriptionRead(InscriptionBase):
     model_config = ConfigDict(from_attributes=True)

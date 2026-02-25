@@ -1,4 +1,5 @@
 from pydantic import BaseModel, field_validator
+from typing import Optional
 
 NIVEAU = ["débutant", "intermédiaire", "avancé"]
 
@@ -24,23 +25,19 @@ class FormationCreate(FormationBase):
     pass
 
 class FormationUpdate(FormationBase):
-    titre: str | None = None
-    description: str | None = None
-    duree: int | None = None
-    niveau: str | None = None
+    titre: Optional[str] = None
+    description: Optional[str] = None
+    duree: Optional[int] = None
+    niveau: Optional[str] = None
    
     @field_validator("niveau")
     def validate_niveau(cls, val):   
-        if val is None:
-            return val
         if val not in NIVEAU:
             raise ValueError(f"Niveau invalide. Choisir parmi : {NIVEAU}")
         return val
 
     @field_validator("duree")
     def validate_duree(cls, val):
-        if val is None:
-            return val
         if val <= 0:
             raise ValueError("La durée doit être > 0")
         return val

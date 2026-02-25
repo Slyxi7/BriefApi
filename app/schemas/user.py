@@ -1,6 +1,7 @@
 import re
 from pydantic import BaseModel, EmailStr, field_validator
 from datetime import datetime
+from typing import Optional
 
 ROLES = ["admin", "formateur", "apprenant"]
 
@@ -39,15 +40,13 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(UserBase):
-    nom: str | None = None
-    prenom: str | None = None
-    email: EmailStr | None = None
-    role: str | None = None
+    nom: Optional[str] = None
+    prenom: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None
 
     @field_validator("role")
     def validate_role(cls, val):
-        if val is None:
-            return val
         if val not in ROLES:
             raise ValueError(f"Rôle invalide. Choisir parmi : {ROLES}")
         return val
