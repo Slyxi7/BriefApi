@@ -33,7 +33,6 @@ class Session(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     formation_id: Mapped[int] = mapped_column(ForeignKey("formations.id"), nullable=False)
-    formateur_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     date_debut: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     date_fin: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     capacite: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -41,8 +40,13 @@ class Session(Base):
 class Inscription(Base):
     __tablename__ = "inscriptions"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    session_id: Mapped[int] = mapped_column(ForeignKey("sessions.id"), nullable=False)
-    apprenant_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    session_id: Mapped[int] = mapped_column(ForeignKey("sessions.id"), primary_key=True, nullable=False)
+    apprenant_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True, nullable=False)
+
+class SessionFormateur(Base):
+    __tablename__ = "session_formateurs"
+
+    session_id: Mapped[int] = mapped_column(ForeignKey("sessions.id"), primary_key=True, nullable=False)
+    formateur_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True, nullable=False)
 
 Base.metadata.create_all(bind=engine)
