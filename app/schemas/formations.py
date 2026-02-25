@@ -1,18 +1,17 @@
 from pydantic import BaseModel, field_validator
 from typing import Optional
-
-NIVEAU = ["débutant", "intermédiaire", "avancé"]
+from enums.level import Level
 
 class FormationBase(BaseModel):
     titre: str
     description: str | None = None
     duree: int
-    niveau: str
+    niveau: Level
    
     @field_validator("niveau")
     def validate_niveau(cls, val):
-        if val not in NIVEAU:
-            raise ValueError(f"Niveau invalide. Choisir parmi : {NIVEAU}")
+        if val not in Level:
+            raise ValueError(f"Niveau invalide. Choisir parmi : {Level}")
         return val
 
     @field_validator("duree")
@@ -28,12 +27,12 @@ class FormationUpdate(FormationBase):
     titre: Optional[str] = None
     description: Optional[str] = None
     duree: Optional[int] = None
-    niveau: Optional[str] = None
+    niveau: Optional[Level] = None
    
     @field_validator("niveau")
     def validate_niveau(cls, val):   
-        if val not in NIVEAU:
-            raise ValueError(f"Niveau invalide. Choisir parmi : {NIVEAU}")
+        if val not in Level:
+            raise ValueError(f"Niveau invalide. Choisir parmi : {Level}")
         return val
 
     @field_validator("duree")
