@@ -38,7 +38,7 @@ class UserCreate(UserBase):
         return val
 
 
-class UserUpdate(BaseModel):
+class UserUpdate(UserBase):
     nom: str | None = None
     prenom: str | None = None
     email: EmailStr | None = None
@@ -46,6 +46,8 @@ class UserUpdate(BaseModel):
 
     @field_validator("role")
     def validate_role(cls, val):
+        if val is None:
+            return val
         if val not in ROLES:
             raise ValueError(f"Rôle invalide. Choisir parmi : {ROLES}")
         return val
@@ -54,5 +56,7 @@ class UserRead(UserBase):
     id: int
     date_inscription: datetime
 
-    class Config:
-        from_attributes = True
+    class Config: from_attributes = True
+
+class UserDelete(BaseModel):
+    hard: bool = False
