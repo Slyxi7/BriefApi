@@ -2,8 +2,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import DateTime, String
 from sqlalchemy import Enum as SQLEnum
 from datetime import datetime
-from base import Base
-from enums.roles import Roles
+from app.models.base import Base
+from app.enums.roles import Roles
+
 class User(Base):
     __tablename__ = "users"
 

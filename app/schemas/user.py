@@ -1,22 +1,14 @@
 import re
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 from datetime import datetime
 from typing import Optional
-from enums.roles import Roles
+from app.enums.roles import Roles
 
-class UserBase(BaseModel):
+class UserCreate(BaseModel):
     nom: str
     prenom: str
     email: EmailStr
     role: Roles
-   
-    @field_validator("role")
-    def validate_role(cls, val):
-        if val not in Roles:
-            raise ValueError(f"Rôle invalide. Choisir parmi : {Roles}")
-        return val
-
-class UserCreate(UserBase):
     password: str
 
     @field_validator("password")
@@ -38,23 +30,21 @@ class UserCreate(UserBase):
         return val
 
 
-class UserUpdate(UserBase):
+class UserUpdate(BaseModel):
     nom: Optional[str] = None
     prenom: Optional[str] = None
     email: Optional[EmailStr] = None
     role: Optional[Roles] = None
 
-    @field_validator("role")
-    def validate_role(cls, val):
-        if val not in Roles:
-            raise ValueError(f"Rôle invalide. Choisir parmi : {Roles}")
-        return val
-
-class UserRead(UserBase):
+class UserRead(BaseModel):
     id: int
+    nom: str
+    prenom: str
+    email: EmailStr
+    role: Roles
     date_inscription: datetime
 
-    class Config: from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserDelete(BaseModel):
     hard: bool = False

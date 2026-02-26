@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import ForeignKey
-from base import Base
+from app.models.base import Base
 
 class SessionFormateur(Base):
     __tablename__ = "session_formateurs"

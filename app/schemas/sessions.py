@@ -1,8 +1,8 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, ConfigDict
 from datetime import datetime
 from typing import Optional
 
-class SessionsBase(BaseModel):
+class SessionsCreate(BaseModel):
     formation_id: int 
     date_debut: datetime
     date_fin: datetime
@@ -20,10 +20,7 @@ class SessionsBase(BaseModel):
             raise ValueError("La capacité doit être > 0")
         return val
 
-class SessionsCreate(SessionsBase):
-    pass
-
-class SessionsUpdate(SessionsBase):
+class SessionsUpdate(BaseModel):
     formation_id: Optional[int] = None
     date_debut: Optional[datetime] = None
     date_fin: Optional[datetime] = None
@@ -32,7 +29,8 @@ class SessionsUpdate(SessionsBase):
 
     @field_validator("capacite")
     def validate_capacite(cls, val):
-
+        if val is None:
+            return val
         if val <= 0:
             raise ValueError("La capacité doit être > 0")
         return val
@@ -45,10 +43,14 @@ class SessionsUpdate(SessionsBase):
             raise ValueError("La capacité doit être > 0")
         return val
     
-class SessionsRead(SessionsBase):
+class SessionsRead(BaseModel):
     id: int
+    formation_id: int 
+    date_debut: datetime
+    date_fin: datetime
+    capacite: int
 
-    class Config: from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class SessionsDelete(BaseModel):
     hard: bool = False

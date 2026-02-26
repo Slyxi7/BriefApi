@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import ForeignKey, DateTime, Integer
 from datetime import datetime
-from base import Base
+from app.models.base import Base
 
 class Session(Base):
     __tablename__ = "sessions"

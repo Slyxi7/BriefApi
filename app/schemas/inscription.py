@@ -13,7 +13,9 @@ class InscriptionUpdate(InscriptionBase):
     session_id: Optional[int] = None
     apprenant_id: Optional[int] = None
 
-class InscriptionRead(InscriptionBase):
+class InscriptionRead(BaseModel):
+    session_id: int
+    apprenant_id: int
     model_config = ConfigDict(from_attributes=True)
 
 class InscriptionDelete(BaseModel):
