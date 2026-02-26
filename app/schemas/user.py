@@ -2,7 +2,7 @@ import re
 from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 from datetime import datetime
 from typing import Optional
-from enums.roles import Roles
+from app.enums.roles import Roles
 
 class UserCreate(BaseModel):
     nom: str

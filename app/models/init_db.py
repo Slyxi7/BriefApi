@@ -1,10 +1,10 @@
 from sqlalchemy import create_engine
-from base import Base
-from inscription import Inscription
-from formation import Formation
-from session import Session
-from sessions_foramteurs import SessionFormateur
-from user import User
+from app.models.base import Base
+from app.models.inscription import Inscription
+from app.models.formation import Formation
+from app.models.session import Session
+from app.models.sessions_foramteurs import SessionFormateur
+from app.models.user import User
 
 engine = create_engine("sqlite:///database.db")
 

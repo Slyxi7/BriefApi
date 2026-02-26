@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import Text, Integer, String
 from sqlalchemy import Enum as SQLEnum
-from base import Base
-from enums.level import Level
+from app.models.base import Base
+from app.enums.level import Level
 
 class Formation(Base):
     __tablename__ = "formations"

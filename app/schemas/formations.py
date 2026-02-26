@@ -1,6 +1,6 @@
 from pydantic import BaseModel, field_validator, ConfigDict
 from typing import Optional
-from enums.level import Level
+from app.enums.level import Level
 
 class FormationCreate(BaseModel):
     titre: str
