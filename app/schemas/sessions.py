@@ -29,7 +29,8 @@ class SessionsUpdate(BaseModel):
 
     @field_validator("capacite")
     def validate_capacite(cls, val):
-
+        if val is None:
+            return val
         if val <= 0:
             raise ValueError("La capacité doit être > 0")
         return val
