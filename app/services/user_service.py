@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from datetime import datetime
-from app.model.base import User
+from app.models.user import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -26,7 +26,6 @@ class UserService:
 
     @staticmethod
     def create(db: Session, user_data):
-        """Création d’un utilisateur"""
         hashed_pwd = UserService.hash_password(user_data.password)
 
         new_user = User(
@@ -51,7 +50,6 @@ class UserService:
 
         update_data = user_data.model_dump(exclude_unset=True)
 
-        # empêcher update du mot de passe ici (sauf si tu veux l’ajouter)
         if "password" in update_data:
             update_data["hashed_password"] = UserService.hash_password(update_data.pop("password"))
 
@@ -64,7 +62,6 @@ class UserService:
 
     @staticmethod
     def delete(db: Session, user_id: int):
-        """Suppression définitive (car pas de soft delete dans ton modèle)"""
         user = UserService.get_by_id(db, user_id)
         if not user:
             return None

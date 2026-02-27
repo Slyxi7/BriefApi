@@ -1,48 +1,101 @@
 from sqlalchemy.orm import Session
-from models.sessions_model import Sessions
-from schemas.sessions_schema import (
+from app.models.session import Sessions
+from app.schemas.sessions import (
     SessionsCreate,
     SessionsUpdate,
     SessionsRead,
     SessionsDelete
 )
 
-
-def get_sessions(db: Session):
-    return db.query(Sessions).all()
+class SessionsFormateursService:
 
 
-def get_session_by_id(db: Session, session_id: int):
-    return db.query(Sessions).filter(Sessions.id == session_id).first()
+    @staticmethod
+    def get_all(db: Session):
+        return db.query(Session).all()
 
 
-def create_session(db: Session, session: SessionsCreate):
-    db_session = Sessions(**session.model_dump())
-    db.add(db_session)
-    db.commit()
-    db.refresh(db_session)
-    return db_session
+    @staticmethod
+    def get(db: Session, session_id: int, formateur_id: int):
+        return (
+            db.query(SessionFormateur)
+            .filter(
+                SessionFormateur.session_id == session_id,
+                SessionFormateur.formateur_id == formateur_id
+            )
+            .first()
+        )
+
+    @staticmethod
+    def create(db: Session, data):
+
+        session = db.query(SessionModel).filter(SessionModel.id == data.session_id).first()
+        if not session:
+            raise ValueError("La session n'existe pas.")
+
+        formateur = db.query(User).filter(User.id == data.formateur_id).first()
+        if not formateur:
+            raise ValueError("Le formateur spécifié n'existe pas.")
+
+        if formateur.role != "formateur":
+            raise ValueError("Seuls les formateurs peuvent être affectés à une session.")
+
+        existing = SessionsFormateursService.get(db, data.session_id, data.formateur_id)
+        if existing:
+            raise ValueError("Ce formateur est déjà affecté à cette session.")
+
+        sf = SessionFormateur(
+            session_id=data.session_id,
+            formateur_id=data.formateur_id
+        )
+
+        db.add(sf)
+        db.commit()
+        db.refresh(sf)
+        return sf
 
 
-def update_session(db: Session, session_db: Sessions, session_update: SessionsUpdate):
-    update_data = session_update.model_dump(exclude_unset=True)
+    @staticmethod
+    def update(db: Session, session_id: int, formateur_id: int, data):
 
-    for key, value in update_data.items():
-        setattr(session_db, key, value)
+        sf = SessionsFormateursService.get(db, session_id, formateur_id)
+        if not sf:
+            return None
 
-    db.commit()
-    db.refresh(session_db)
-    return session_db
+        updated_fields = data.model_dump(exclude_unset=True)
 
+        new_session_id = updated_fields.get("session_id", session_id)
+        new_formateur_id = updated_fields.get("formateur_id", formateur_id)
 
-def delete_session(db: Session, session_db: Sessions, delete_schema: SessionsDelete):
-    # Hard delete (delete from DB)
-    if delete_schema.hard:
-        db.delete(session_db)
+        session = db.query(SessionModel).filter(SessionModel.id == new_session_id).first()
+        if not session:
+            raise ValueError("La nouvelle session n'existe pas.")
 
-    # Soft delete (désactivation)  
-    else:
-        session_db.is_active = False
+        formateur = db.query(User).filter(User.id == new_formateur_id).first()
+        if not formateur:
+            raise ValueError("Le formateur ne peut être trouvé.")
 
-    db.commit()
-    return {"detail": "Session supprimée" if delete_schema.hard else "Session désactivée"}
+        if formateur.role != "formateur":
+            raise ValueError("Seuls les formateurs peuvent être affectés.")
+
+        if new_session_id != session_id or new_formateur_id != formateur_id:
+            existing = SessionsFormateursService.get(db, new_session_id, new_formateur_id)
+            if existing:
+                raise ValueError("Cette affectation existe déjà.")
+
+        for key, value in updated_fields.items():
+            setattr(sf, key, value)
+
+        db.commit()
+        db.refresh(sf)
+        return sf
+
+    @staticmethod
+    def delete(db: Session, session_id: int, formateur_id: int):
+        sf = SessionsFormateursService.get(db, session_id, formateur_id)
+        if not sf:
+            return None
+
+        db.delete(sf)
+        db.commit()
+        return True

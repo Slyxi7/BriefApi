@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database import get_db
+from app.database.connection import get_db
 
-# Services
-from services.sessions_services import (
+from app.services.sessions_service  import (
     get_sessions,
     get_session_by_id,
     create_session,
@@ -12,8 +11,7 @@ from services.sessions_services import (
     delete_session
 )
 
-# Schemas
-from schemas.sessions_schema import (
+from app.schemas.sessions import (
     SessionsCreate,
     SessionsUpdate,
     SessionsRead,

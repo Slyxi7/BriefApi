@@ -2,13 +2,13 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from database.connection import get_db
-from schemas.sessions_formateurs import (
+from app.database.connection import get_db
+from app.schemas.sessions_formateurs import (
     SessionsFormateursCreate,
     SessionsFormateursUpdate,
     SessionsFormateursRead
 )
-from services.sessions_formateurs_services import SessionsFormateursService
+from services.sessions_formateurs_service import SessionsFormateursService
 
 router = APIRouter(prefix="/sessions-formateurs", tags=["Sessions - Formateurs"])
 
