@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+email-validator
+
+pytest
+pytest-asyncio
+
+bcrypt
+python-multipart
+passlib
