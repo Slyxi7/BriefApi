@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
-from app.model.base import Session as SessionModel, User, SessionFormateur
-
+from app.models.sessions_foramteurs import SessionFormateur
+from app.models.user import User
+from app.models.session import Session as SessionModel
 
 class SessionsFormateursService:
 
@@ -24,12 +25,10 @@ class SessionsFormateursService:
     @staticmethod
     def create(db: Session, data):
 
-        # Vérifier session
         session = db.query(SessionModel).filter(SessionModel.id == data.session_id).first()
         if not session:
             raise ValueError("La session n'existe pas.")
 
-        # Vérifier formateur
         formateur = db.query(User).filter(User.id == data.formateur_id).first()
         if not formateur:
             raise ValueError("Le formateur spécifié n'existe pas.")
@@ -37,12 +36,10 @@ class SessionsFormateursService:
         if formateur.role != "formateur":
             raise ValueError("Seuls les formateurs peuvent être affectés à une session.")
 
-        # Vérifier doublon
         existing = SessionsFormateursService.get(db, data.session_id, data.formateur_id)
         if existing:
             raise ValueError("Ce formateur est déjà affecté à cette session.")
-
-        # Création
+        
         sf = SessionFormateur(
             session_id=data.session_id,
             formateur_id=data.formateur_id
@@ -66,12 +63,10 @@ class SessionsFormateursService:
         new_session_id = updated_fields.get("session_id", session_id)
         new_formateur_id = updated_fields.get("formateur_id", formateur_id)
 
-        # Vérifier session
         session = db.query(SessionModel).filter(SessionModel.id == new_session_id).first()
         if not session:
             raise ValueError("La nouvelle session n'existe pas.")
 
-        # Vérifier formateur
         formateur = db.query(User).filter(User.id == new_formateur_id).first()
         if not formateur:
             raise ValueError("Le formateur ne peut être trouvé.")
@@ -79,13 +74,11 @@ class SessionsFormateursService:
         if formateur.role != "formateur":
             raise ValueError("Seuls les formateurs peuvent être affectés.")
 
-        # Vérifier doublon si changement de clé
         if new_session_id != session_id or new_formateur_id != formateur_id:
             existing = SessionsFormateursService.get(db, new_session_id, new_formateur_id)
             if existing:
                 raise ValueError("Cette affectation existe déjà.")
 
-        # Mise à jour
         for key, value in updated_fields.items():
             setattr(sf, key, value)
 

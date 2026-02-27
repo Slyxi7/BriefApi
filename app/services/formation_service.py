@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.model.base import Formation  # adapte ton import selon ton arbo
+from app.models.formation import Formation
 
 
 class FormationService:

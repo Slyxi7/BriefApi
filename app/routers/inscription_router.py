@@ -2,9 +2,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from database.connection import get_db
-from schemas.inscription import InscriptionCreate, InscriptionUpdate, InscriptionRead
-from services.inscription_services import InscriptionService
+from app.database.connection import get_db
+from app.schemas.inscription import InscriptionCreate, InscriptionUpdate, InscriptionRead
+from app.services.inscription_service import InscriptionService
 
 router = APIRouter(prefix="/inscriptions", tags=["Inscriptions"])
 
