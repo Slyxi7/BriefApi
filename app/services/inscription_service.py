@@ -7,11 +7,11 @@ class InscriptionService:
 
 
     @staticmethod
-    def get_all(db: Session):
+    def get_all_inscription(db: Session):
         return db.query(Inscription).all()
 
     @staticmethod
-    def get(db: Session, session_id: int, apprenant_id: int):
+    def get_inscription(db: Session, session_id: int, apprenant_id: int):
         return (
             db.query(Inscription)
             .filter(
@@ -22,7 +22,7 @@ class InscriptionService:
         )
 
     @staticmethod
-    def create(db: Session, inscription_data):
+    def create_inscription(db: Session, inscription_data):
 
         session = db.query(SessionModel).filter(SessionModel.id == inscription_data.session_id).first()
         if not session:
@@ -50,7 +50,7 @@ class InscriptionService:
         return inscription
 
     @staticmethod
-    def update(db: Session, session_id: int, apprenant_id: int, inscription_data):
+    def update_inscription(db: Session, session_id: int, apprenant_id: int, inscription_data):
 
         inscription = InscriptionService.get(db, session_id, apprenant_id)
         if not inscription:
@@ -85,7 +85,7 @@ class InscriptionService:
 
 
     @staticmethod
-    def delete(db: Session, session_id: int, apprenant_id: int):
+    def delete_inscription(db: Session, session_id: int, apprenant_id: int):
         inscription = InscriptionService.get(db, session_id, apprenant_id)
         if not inscription:
             return None
