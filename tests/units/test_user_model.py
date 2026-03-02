@@ -9,10 +9,15 @@ def test_user_create_valid():
         nom="Doe",
         prenom="John",
         email="john@doe.com",
-        role="admin"
+        role="admin",
+        password="SuperSecure1!"
     )
+
+    assert dto.nom == "Doe"
+    assert dto.prenom == "John"
     assert dto.email == "john@doe.com"
     assert dto.role == "admin"
+    assert dto.password == "SuperSecure1!"
 
 
 def test_user_create_invalid_role():
