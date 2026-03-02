@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.models.user import User
+from fastapi import HTTPException, status
 import bcrypt
 
 class UserService:
@@ -14,12 +15,11 @@ class UserService:
         return db.query(User).filter(User.id == user_id).first()
 
     @staticmethod
-    def get_by_email(db: Session, email: str):
+    def get_user_by_email(db: Session, email: str):
         return db.query(User).filter(User.email == email).first()
 
     @staticmethod
     def hash_password(password: str) -> str:
-        password = "MySecretPassword" 
         password_bytes = password.encode('utf-8')
         hashed_bytes = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
         return hashed_bytes.decode('utf-8')
@@ -28,6 +28,13 @@ class UserService:
     @staticmethod
     def create_user(db: Session, user_data):
         hashed_pwd = UserService.hash_password(user_data.password)
+
+
+        if UserService.get_user_by_email(db, user_data.email) is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email déjà enregistré"
+            )
 
         new_user = User(
             nom=user_data.nom,
