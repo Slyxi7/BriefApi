@@ -2,12 +2,13 @@ from sqlalchemy.orm import Session
 from app.models.inscription import Inscription
 from app.models.user import User
 from app.models.session import Session as SessionModel
+from fastapi import HTTPException, status
 
 class InscriptionService:
 
 
     @staticmethod
-    def get_all_inscription(db: Session):
+    def get_all_inscriptions(db: Session):
         return db.query(Inscription).all()
 
     @staticmethod
@@ -26,18 +27,30 @@ class InscriptionService:
 
         session = db.query(SessionModel).filter(SessionModel.id == inscription_data.session_id).first()
         if not session:
-            raise ValueError("La session n'existe pas.")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="La session n'existe pas ."
+            )
 
         user = db.query(User).filter(User.id == inscription_data.apprenant_id).first()
         if not user:
-            raise ValueError("L'apprenant n'existe pas.")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="L'apprenant n'existe pas."
+            )
 
         if user.role != "apprenant":
-            raise ValueError("Seuls les apprenants peuvent être inscrits à une session.")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Seul les apprenants peuvent s'inscrire. "
+            )
 
-        existing = InscriptionService.get(db, inscription_data.session_id, inscription_data.apprenant_id)
+        existing = InscriptionService.get_inscription(db, inscription_data.session_id, inscription_data.apprenant_id)
         if existing:
-            raise ValueError("Cet apprenant est déjà inscrit à cette session.")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="L'apprenant est deja inscrit a cette session."
+            )
 
         inscription = Inscription(
             session_id=inscription_data.session_id,
@@ -52,7 +65,7 @@ class InscriptionService:
     @staticmethod
     def update_inscription(db: Session, session_id: int, apprenant_id: int, inscription_data):
 
-        inscription = InscriptionService.get(db, session_id, apprenant_id)
+        inscription = InscriptionService.get_inscription(db, session_id, apprenant_id)
         if not inscription:
             return None
 
@@ -63,18 +76,30 @@ class InscriptionService:
 
         session = db.query(SessionModel).filter(SessionModel.id == new_session_id).first()
         if not session:
-            raise ValueError("La session spécifiée n'existe pas.")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="La session n'existe pas "
+            )
 
         user = db.query(User).filter(User.id == new_apprenant_id).first()
         if not user:
-            raise ValueError("L'apprenant spécifié n'existe pas.")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="L'apprenant n'existe pas"
+            )
 
         if user.role != "apprenant":
-            raise ValueError("Seuls les apprenants peuvent être inscrits.")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Seul les apprenants peuvnt etre inscrit. "
+            )
 
         if (new_session_id != session_id or new_apprenant_id != apprenant_id):
             if InscriptionService.get(db, new_session_id, new_apprenant_id):
-                raise ValueError("Cette inscription existe déjà.")
+                raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="L'apprenant est deja inscrit a cette session."
+            )
 
         for key, value in updated_fields.items():
             setattr(inscription, key, value)
@@ -86,7 +111,7 @@ class InscriptionService:
 
     @staticmethod
     def delete_inscription(db: Session, session_id: int, apprenant_id: int):
-        inscription = InscriptionService.get(db, session_id, apprenant_id)
+        inscription = InscriptionService.get_inscription(db, session_id, apprenant_id)
         if not inscription:
             return None
 
