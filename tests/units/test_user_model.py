@@ -1,5 +1,5 @@
 import pytest
-from app.schemas.user import UserCreate, UserUpdate, UserRead, ROLES
+from app.schemas.user import UserCreate, UserUpdate, UserRead
 from pydantic import ValidationError
 from datetime import datetime
 

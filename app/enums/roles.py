@@ -1,6 +1,6 @@
 from enum import Enum
 
 class Roles(str, Enum):
-    debutant = "admin",
-    intermediaire = "formateur"
-    avance = "apprenant"
+    admin = "admin"
+    formateur = "formateur"
+    apprenant = "apprenant"
