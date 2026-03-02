@@ -5,17 +5,15 @@ from app.models.formation import Formation
 class FormationService:
 
     @staticmethod
-    def get_all(db: Session):
+    def get_all_formations(db: Session):
         return db.query(Formation).all()
 
-
     @staticmethod
-    def get_by_id(db: Session, formation_id: int):
+    def get_formation_by_id(db: Session, formation_id: int):
         return db.query(Formation).filter(Formation.id == formation_id).first()
 
-
     @staticmethod
-    def create(db: Session, formation_data):
+    def create_formation(db: Session, formation_data):
         new_formation = Formation(
             titre=formation_data.titre,
             description=formation_data.description,
@@ -30,7 +28,7 @@ class FormationService:
 
 
     @staticmethod
-    def update(db: Session, formation_id: int, formation_data):
+    def update_formation(db: Session, formation_id: int, formation_data):
         formation = FormationService.get_by_id(db, formation_id)
         if not formation:
             return None
@@ -45,7 +43,7 @@ class FormationService:
         return formation
 
     @staticmethod
-    def delete(db: Session, formation_id: int):
+    def delete_formation(db: Session, formation_id: int):
         formation = FormationService.get_by_id(db, formation_id)
         if not formation:
             return None
