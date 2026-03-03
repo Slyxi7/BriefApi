@@ -1,21 +1,32 @@
 from sqlalchemy.orm import Session
-from app.models.session import Session as Sessions
-from app.schemas.sessions import SessionsCreate, SessionsUpdate, SessionsRead, SessionsDelete
+from app.models.session import Session as SessionModel
+from app.models.formation import Formation
+from fastapi import HTTPException, status
 
 class SessionService:
 
     @staticmethod
     def get_all_sessions(db: Session):
-        return db.query(Sessions).all()
+        return db.query(SessionModel).all()
 
     @staticmethod
     def get_session_by_id(db: Session, Sessions_id: int):
-        return db.query(Sessions).filter(Sessions.id == Sessions_id).first()
+        return db.query(SessionModel).filter(SessionModel.id == Sessions_id).first()
+
+    @staticmethod
+    def get_sessions_by_formation(db: Session, formation_id: int):
+        return db.query(SessionModel).filter(SessionModel.formation_id == formation_id).all()
 
     @staticmethod
     def create_session(db: Session, session_data):
 
-        new_session = Sessions(
+        if not db.query(Formation).filter(Formation.id == session_data.formation_id).first():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="La formation n'existe pas "
+            )
+
+        new_session = SessionModel(
             formation_id=session_data.formation_id,
             date_debut=session_data.date_debut,
             date_fin=session_data.date_fin,

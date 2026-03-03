@@ -3,6 +3,7 @@ from app.models.inscription import Inscription
 from app.models.user import User
 from app.models.session import Session as SessionModel
 from fastapi import HTTPException, status
+from sqlalchemy import func
 
 class InscriptionService:
 
@@ -23,8 +24,32 @@ class InscriptionService:
         )
 
     @staticmethod
-    def create_inscription(db: Session, inscription_data):
+    def get_inscription_session(db: Session, session_id: int):
+        return (
+            db.query(Inscription)
+            .filter(Inscription.session_id == session_id).all()
+        )
 
+    @staticmethod
+    def get_inscription_user(db: Session, apprenant_id: int):
+        return (
+            db.query(Inscription)
+            .filter(Inscription.apprenant_id == apprenant_id).all()
+        )
+    
+    @staticmethod
+    def count_apprenants_in_session(db: Session, session_id: int) -> int:
+        return (
+            db.query(func.count(Inscription.apprenant_id))
+            .join(User, User.id == Inscription.apprenant_id)
+            .filter(Inscription.session_id == session_id)
+            .filter(User.role == "apprenant")
+            .scalar()
+        ) or 0
+
+    @staticmethod
+    def create_inscription(db: Session, inscription_data):
+        count = 0
         session = db.query(SessionModel).filter(SessionModel.id == inscription_data.session_id).first()
         if not session:
             raise HTTPException(
@@ -36,20 +61,27 @@ class InscriptionService:
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="L'apprenant n'existe pas."
+                detail="L'utilisateur n'existe pas."
             )
 
-        if user.role != "apprenant":
+        if user.role != "apprenant" and user.role != "formateur":
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Seul les apprenants peuvent s'inscrire. "
+                detail="Vous n'avez pas acces a cette session"
             )
 
-        existing = InscriptionService.get_inscription(db, inscription_data.session_id, inscription_data.apprenant_id)
-        if existing:
+        if InscriptionService.get_inscription(db, inscription_data.session_id, inscription_data.apprenant_id):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="L'apprenant est deja inscrit a cette session."
+                detail="L'utilisateur est deja inscrit a cette session."
+            )
+
+        count = InscriptionService.count_apprenants_in_session(db, inscription_data.session_id)
+
+        if user.role == "apprenant" and count >= session.capacite:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Trop de personne inscrite"
             )
 
         inscription = Inscription(
@@ -88,7 +120,7 @@ class InscriptionService:
                 detail="L'apprenant n'existe pas"
             )
 
-        if user.role != "apprenant":
+        if user.role != "apprenant" and user.role != "formateur":
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Seul les apprenants peuvnt etre inscrit. "
