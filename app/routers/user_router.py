@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database.connection import get_db
 from app.schemas.user import UserCreate, UserUpdate, UserRead
 from app.services.user_service import UserService
+from app.services.inscription_service import InscriptionService
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -26,3 +27,7 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
 @router.delete("/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     return UserService.delete_user(db, user_id)
+
+@router.get("/{user_id}/inscriptions")
+def get_user_inscriptions(user_id: int, db: Session = Depends(get_db)):
+    return InscriptionService.get_inscription_user(db, user_id)

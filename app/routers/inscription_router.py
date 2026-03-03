@@ -15,11 +15,11 @@ def create_inscription(payload: InscriptionCreate, db: Session = Depends(get_db)
 def list_inscriptions(db: Session = Depends(get_db)):
     return InscriptionService.get_all_inscriptions(db)
 
-@router.get("/{session_id}/{apprenant_id}", response_model=InscriptionRead)
+@router.get("/sessions/{session_id}/apprenants/{apprenant_id}", response_model=InscriptionRead)
 def get_inscription(session_id: int, apprenant_id: int, db: Session = Depends(get_db)):
     return InscriptionService.get_inscription(db, session_id, apprenant_id)
 
-@router.put("/{session_id}/{apprenant_id}", response_model=InscriptionRead)
+@router.put("/sessions/{session_id}/apprenants/{apprenant_id}", response_model=InscriptionRead)
 def update_inscription(
     session_id: int,
     apprenant_id: int,
@@ -28,6 +28,6 @@ def update_inscription(
 ):
     return InscriptionService.update_inscription(db, session_id, apprenant_id, payload)
 
-@router.delete("/{session_id}/{apprenant_id}")
+@router.delete("/sessions/{session_id}/apprenants/{apprenant_id}")
 def delete_inscription(session_id: int, apprenant_id: int, db: Session = Depends(get_db)):
     return InscriptionService.delete_inscription(db, session_id, apprenant_id)
