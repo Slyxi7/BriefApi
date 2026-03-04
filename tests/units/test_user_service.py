@@ -1,91 +1,76 @@
-import pytest
-from unittest.mock import MagicMock, patch
-from app.services.user_service import UserService
+from sqlalchemy.orm import Session
+from passlib.context import CryptContext
+from datetime import datetime
+from app.models.user import User
+
+# Le pwd_context doit exister AU NIVEAU DU MODULE (les tests le patchent ici)
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def make_db():
-    db = MagicMock()
-    db.query.return_value.all.return_value = []
-    db.query.return_value.filter.return_value.first.return_value = None
-    return db
+class UserService:
 
-def make_user(**kwargs):
-    user = MagicMock()
-    user.id = kwargs.get("id", 1)
-    user.email = kwargs.get("email", "jean@example.com")
-    return user
+    @staticmethod
+    def get_all(db: Session):
+        return db.query(User).all()
 
-def make_user_data(**kwargs):
-    data = MagicMock()
-    data.nom = kwargs.get("nom", "Dupont")
-    data.prenom = kwargs.get("prenom", "Jean")
-    data.email = kwargs.get("email", "jean@example.com")
-    data.role = kwargs.get("role", "user")
-    data.password = kwargs.get("password", "secret123")
-    return data
+    @staticmethod
+    def get_by_id(db: Session, user_id: int):
+        return db.query(User).filter(User.id == user_id).first()
 
-def test_get_all_returns_users():
-    db = make_db()
-    users = [make_user(id=1), make_user(id=2)]
-    db.query.return_value.all.return_value = users
-    assert UserService.get_all(db) == users
+    @staticmethod
+    def get_by_email(db: Session, email: str):
+        return db.query(User).filter(User.email == email).first()
 
-def test_get_by_id_found():
-    db = make_db()
-    user = make_user(id=1)
-    db.query.return_value.filter.return_value.first.return_value = user
-    assert UserService.get_by_id(db, 1) is user
+    @staticmethod
+    def hash_password(password: str) -> str:
+        return pwd_context.hash(password)
 
-def test_get_by_id_not_found():
-    db = make_db()
-    assert UserService.get_by_id(db, 999) is None
+    @staticmethod
+    def create(db: Session, user_data):
+        hashed_pwd = UserService.hash_password(user_data.password)
 
-def test_hash_password_differs_from_plain():
-    with patch("app.services.user_service.pwd_context") as mock_ctx:
-        mock_ctx.hash.return_value = "$2b$hashed"
-        result = UserService.hash_password("pw")
-        assert result != "pw"
-        mock_ctx.hash.assert_called_once_with("pw")
+        new_user = User(
+            nom=user_data.nom,
+            prenom=user_data.prenom,
+            email=user_data.email,
+            role=user_data.role,
+            hashed_password=hashed_pwd,
+            date_inscription=datetime.utcnow(),
+        )
 
-def test_hash_password_is_verifiable():
-    with patch("app.services.user_service.pwd_context") as mock_ctx:
-        mock_ctx.hash.return_value = "$2b$hashed"
-        mock_ctx.verify.return_value = True
-        hashed = UserService.hash_password("pw")
-        assert mock_ctx.verify("pw", hashed)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return new_user
 
-def test_create_hashes_password_and_commits():
-    db = make_db()
-    user_data = make_user_data(password="plain")
-    with patch.object(UserService, "hash_password", return_value="hashed") as mock_hash:
-        UserService.create(db, user_data)
-        mock_hash.assert_called_once_with("plain")
-    db.add.assert_called_once()
-    db.commit.assert_called_once()
+    @staticmethod
+    def update(db: Session, user_id: int, user_data):
+        user = UserService.get_by_id(db, user_id)
+        if not user:
+            return None
 
+        update_data = user_data.model_dump(exclude_unset=True)
 
-def test_update_returns_none_if_user_not_found():
-    db = make_db()
-    with patch.object(UserService, "get_by_id", return_value=None):
-        assert UserService.update(db, 99, MagicMock()) is None
+        # Si un password est fourni → on le hash
+        if "password" in update_data:
+            update_data["hashed_password"] = UserService.hash_password(
+                update_data.pop("password")
+            )
 
-def test_update_hashes_password_field():
-    db = make_db()
-    user = make_user()
-    user_data = MagicMock()
-    user_data.model_dump.return_value = {"password": "newpass"}
-    with patch.object(UserService, "get_by_id", return_value=user), \
-         patch.object(UserService, "hash_password", return_value="hashed_new") as mock_hash:
-        UserService.update(db, 1, user_data)
-        mock_hash.assert_called_once_with("newpass")
-    assert user.hashed_password == "hashed_new"
+        # Update générique
+        for key, value in update_data.items():
+            setattr(user, key, value)
 
-def test_delete_returns_true_on_success():
-    db = make_db()
-    with patch.object(UserService, "get_by_id", return_value=make_user()):
-        assert UserService.delete(db, 1) is True
+        db.commit()
+        db.refresh(user)
+        return user
 
-def test_delete_returns_none_if_user_not_found():
-    db = make_db()
-    with patch.object(UserService, "get_by_id", return_value=None):
-        assert UserService.delete(db, 99) is None
+    @staticmethod
+    def delete(db: Session, user_id: int):
+        user = UserService.get_by_id(db, user_id)
+        if not user:
+            return None
+
+        db.delete(user)
+        db.commit()
+        return True
