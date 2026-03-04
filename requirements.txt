@@ -5,6 +5,7 @@ pydantic
 email-validator
 
 pytest
+pytest-cov
 pytest-asyncio
 
 bcrypt
