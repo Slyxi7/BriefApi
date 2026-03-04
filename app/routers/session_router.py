@@ -99,3 +99,21 @@ def route_delete_session(session_id: int, delete_schema: SessionsDelete, db: Ses
 )
 def get_user_inscriptions(session_id: int, db: Session = Depends(get_db)):
     return InscriptionService.get_inscription_session(db, session_id)
+
+@router.patch(
+    "/{session_id}",
+    response_model=SessionsRead,
+    summary="Mettre à jour partiellement une session",
+    description="Met à jour un ou plusieurs champs d'une session existante.",
+    responses={
+        200: {"description": "Session mise à jour avec succès"},
+        404: {"description": "Session introuvable"},
+        400: {"description": "Aucun champ fourni pour la mise à jour"}
+    }
+)
+def patch_session(
+    session_id: int,
+    payload: SessionsUpdate,
+    db: Session = Depends(get_db)
+):
+    return SessionService.patch_session(db, session_id, payload)

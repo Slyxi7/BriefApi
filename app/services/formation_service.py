@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.formation import Formation
-
+from fastapi import HTTPException
 
 class FormationService:
 
@@ -51,3 +51,21 @@ class FormationService:
         db.delete(formation)
         db.commit()
         return True
+
+    @staticmethod
+    def patch_formation(db: Session, formation_id: int, formation_data):
+        formation = FormationService.get_formation_by_id(db, formation_id)
+        if not formation:
+            raise HTTPException(status_code=404, detail="Formation introuvable")
+
+        update_data = formation_data.model_dump(exclude_unset=True)
+
+        if not update_data:
+            raise HTTPException(status_code=400, detail="Aucun champ fourni pour la mise à jour")
+
+        for key, value in update_data.items():
+            setattr(formation, key, value)
+
+        db.commit()
+        db.refresh(formation)
+        return formation

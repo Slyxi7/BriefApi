@@ -74,3 +74,21 @@ class UserService:
         db.delete(user)
         db.commit()
         return True
+
+    @staticmethod
+    def patch_user(db: Session, user_id: int, user_data):
+        user = UserService.get_user_by_id(db, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+        update_data = user_data.model_dump(exclude_unset=True)
+
+        if not update_data:
+            raise HTTPException(status_code=400, detail="Aucun champ fourni pour la mise à jour")
+
+        for key, value in update_data.items():
+            setattr(user, key, value)
+
+        db.commit()
+        db.refresh(user)
+        return user

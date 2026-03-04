@@ -77,3 +77,21 @@ def update_formation(
 )
 def delete_formation(formation_id: int, db: Session = Depends(get_db)):
     return FormationService.delete_formation(db, formation_id)
+
+@router.patch(
+    "/{formation_id}",
+    response_model=FormationRead,
+    summary="Mettre à jour partiellement une formation",
+    description="Met à jour un ou plusieurs champs d'une formation existante.",
+    responses={
+        200: {"description": "Formation mise à jour avec succès"},
+        404: {"description": "Formation introuvable"},
+        400: {"description": "Aucun champ fourni pour la mise à jour"}
+    }
+)
+def patch_formation(
+    formation_id: int,
+    payload: FormationUpdate,
+    db: Session = Depends(get_db)
+):
+    return FormationService.patch_formation(db, formation_id, payload)

@@ -86,3 +86,18 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 )
 def get_user_inscriptions(user_id: int, db: Session = Depends(get_db)):
     return InscriptionService.get_inscription_user(db, user_id)
+
+@router.patch(
+    "/{user_id}",
+    response_model=UserRead,
+    summary="Mettre à jour partiellement un utilisateur",
+    description="Met à jour un ou plusieurs champs d'un utilisateur (nom, prénom, email, rôle).",
+    responses={
+        200: {"description": "Utilisateur mis à jour avec succès"},
+        404: {"description": "Utilisateur non trouvé"},
+        409: {"description": "Email déjà utilisé"},
+        400: {"description": "Aucun champ fourni pour la mise à jour"},
+    },
+)
+def patch_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)):
+    return UserService.patch_user(db, user_id, payload)
