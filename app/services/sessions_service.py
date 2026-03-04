@@ -62,3 +62,21 @@ class SessionService:
         db.delete(session)
         db.commit()
         return True
+    
+    @staticmethod
+    def patch_session(db: Session, session_id: int, session_data):
+        session = SessionService.get_session_by_id(db, session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session introuvable")
+
+        update_data = session_data.model_dump(exclude_unset=True)
+
+        if not update_data:
+            raise HTTPException(status_code=400, detail="Aucun champ fourni pour la mise à jour")
+
+        for key, value in update_data.items():
+            setattr(session, key, value)
+
+        db.commit()
+        db.refresh(session)
+        return session
