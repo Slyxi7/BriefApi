@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import DateTime, String
+from sqlalchemy import DateTime, String, Boolean
 from sqlalchemy import Enum as SQLEnum
 from datetime import datetime
 from app.models.base import Base
@@ -15,3 +15,4 @@ class User(Base):
     role: Mapped[Roles] =  mapped_column(SQLEnum(Roles), nullable=False)
     date_inscription: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

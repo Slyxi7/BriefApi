@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
+from fastapi import APIRouter, Depends, HTTPException
 from app.database.connection import get_db
 from app.schemas.user import UserCreate, UserUpdate, UserRead
 from app.services.user_service import UserService
@@ -66,14 +65,19 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
     "/{user_id}",
     status_code=204,
     summary="Supprimer un utilisateur",
-    description="Supprime un utilisateur de la base de données à partir de son identifiant.",
+    description="Soft delete par défaut. Ajouter ?hard=true pour supprimer définitivement.",
     responses={
         204: {"description": "Utilisateur supprimé avec succès"},
         404: {"description": "Utilisateur non trouvé"}
     }
 )
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    return UserService.delete_user(db, user_id)
+def delete_user(user_id: int, hard: bool = False, db: Session = Depends(get_db)):
+    result = UserService.delete(db, user_id, hard)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
+
+    return
 
 @router.get(
     "/{user_id}/inscriptions",

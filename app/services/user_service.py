@@ -7,16 +7,25 @@ import bcrypt
 class UserService:
 
     @staticmethod
-    def get_all_users(db: Session):
-        return db.query(User).all()
+    def get_all_users(db: Session, include_deleted: bool = False):
+        q = db.query(User)
+        if not include_deleted:
+            q = q.filter(User.is_deleted.is_(False))
+        return q.all()
 
     @staticmethod
-    def get_user_by_id(db: Session, user_id: int):
-        return db.query(User).filter(User.id == user_id).first()
+    def get_user_by_id(db: Session, user_id: int, include_deleted: bool = False):
+        q = db.query(User).filter(User.id == user_id)
+        if not include_deleted:
+            q = q.filter(User.is_deleted.is_(False))
+        return q.first()
 
     @staticmethod
-    def get_user_by_email(db: Session, email: str):
-        return db.query(User).filter(User.email == email).first()
+    def get_user_by_email(db: Session, email: str, include_deleted: bool = False):
+        q = db.query(User).filter(User.email == email)
+        if not include_deleted:
+            q = q.filter(User.is_deleted.is_(False))
+        return q.first()
 
     @staticmethod
     def hash_password(password: str) -> str:
@@ -66,12 +75,15 @@ class UserService:
         return user
 
     @staticmethod
-    def delete_user(db: Session, user_id: int):
-        user = UserService.get_user_by_id(db, user_id)
+    def delete(db: Session, user_id: int, hard: bool = False):
+        user = UserService.get_user_by_id(db, user_id, include_deleted=True)
         if not user:
             return None
 
-        db.delete(user)
+        if hard:
+            db.delete(user)
+        else:
+            user.is_deleted = True
         db.commit()
         return True
 
