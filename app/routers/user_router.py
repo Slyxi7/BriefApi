@@ -11,12 +11,12 @@ router = APIRouter(prefix="/users", tags=["Users"])
     "/",
     response_model=UserRead,
     status_code=201,
-    summary="Créer un utilisateur",
-    description="Crée un nouvel utilisateur dans la base de données avec son nom, prénom, email et rôle.",
+    summary="Create a user",
+    description="Creates a new user in the database with their first name, last name, email, and role.",
     responses={
-        201: {"description": "Utilisateur créé avec succès"},
-        400: {"description": "Requête invalide"},
-        409: {"description": "Email déjà utilisé"}
+        201: {"description": "User created successfully"},
+        400: {"description": "Invalid request"},
+        409: {"description": "Email already in use"}
     }
 )
 def create_user(payload: UserCreate, db: Session = Depends(get_db)):
@@ -25,10 +25,10 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
 @router.get(
     "/",
     response_model=list[UserRead],
-    summary="Lister tous les utilisateurs",
-    description="Retourne la liste de tous les utilisateurs enregistrés dans la base de données.",
+    summary="List all users",
+    description="Returns the list of all users stored in the database.",
     responses={
-        200: {"description": "Liste des utilisateurs récupérée avec succès"}
+        200: {"description": "User list retrieved successfully"}
     }
 )
 def list_users(db: Session = Depends(get_db)):
@@ -37,11 +37,11 @@ def list_users(db: Session = Depends(get_db)):
 @router.get(
     "/{user_id}",
     response_model=UserRead,
-    summary="Récupérer un utilisateur",
-    description="Retourne les informations d'un utilisateur spécifique à partir de son identifiant.",
+    summary="Get a user",
+    description="Returns the information of a specific user using their identifier.",
     responses={
-        200: {"description": "Utilisateur trouvé"},
-        404: {"description": "Utilisateur non trouvé"}
+        200: {"description": "User found"},
+        404: {"description": "User not found"}
     }
 )
 def get_user(user_id: int, db: Session = Depends(get_db)):
@@ -50,12 +50,12 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 @router.put(
     "/{user_id}",
     response_model=UserRead,
-    summary="Mettre à jour un utilisateur",
-    description="Met à jour les informations d'un utilisateur existant à partir de son identifiant.",
+    summary="Update a user",
+    description="Updates the information of an existing user using their identifier.",
     responses={
-        200: {"description": "Utilisateur mis à jour avec succès"},
-        404: {"description": "Utilisateur non trouvé"},
-        400: {"description": "Données invalides"}
+        200: {"description": "User updated successfully"},
+        404: {"description": "User not found"},
+        400: {"description": "Invalid data"}
     }
 )
 def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)):
@@ -64,11 +64,11 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
 @router.delete(
     "/{user_id}",
     status_code=204,
-    summary="Supprimer un utilisateur",
-    description="Soft delete par défaut. Ajouter ?hard=true pour supprimer définitivement.",
+    summary="Delete a user",
+    description="Soft delete by default. Add ?hard=true to permanently delete the user.",
     responses={
-        204: {"description": "Utilisateur supprimé avec succès"},
-        404: {"description": "Utilisateur non trouvé"}
+        204: {"description": "User deleted successfully"},
+        404: {"description": "User not found"}
     }
 )
 def delete_user(user_id: int, hard: bool = False, db: Session = Depends(get_db)):
@@ -81,11 +81,11 @@ def delete_user(user_id: int, hard: bool = False, db: Session = Depends(get_db))
 
 @router.get(
     "/{user_id}/inscriptions",
-    summary="Lister les inscriptions d'un utilisateur",
-    description="Retourne toutes les inscriptions aux sessions pour un utilisateur donné.",
+    summary="List user enrollments",
+    description="Returns all session enrollments for a given user.",
     responses={
-        200: {"description": "Liste des inscriptions récupérée avec succès"},
-        404: {"description": "Utilisateur non trouvé"}
+        200: {"description": "Enrollment list retrieved successfully"},
+        404: {"description": "User not found"}
     }
 )
 def get_user_inscriptions(user_id: int, db: Session = Depends(get_db)):
@@ -94,13 +94,13 @@ def get_user_inscriptions(user_id: int, db: Session = Depends(get_db)):
 @router.patch(
     "/{user_id}",
     response_model=UserRead,
-    summary="Mettre à jour partiellement un utilisateur",
-    description="Met à jour un ou plusieurs champs d'un utilisateur (nom, prénom, email, rôle).",
+    summary="Partially update a user",
+    description="Updates one or more fields of a user (first name, last name, email, role).",
     responses={
-        200: {"description": "Utilisateur mis à jour avec succès"},
-        404: {"description": "Utilisateur non trouvé"},
-        409: {"description": "Email déjà utilisé"},
-        400: {"description": "Aucun champ fourni pour la mise à jour"},
+        200: {"description": "User updated successfully"},
+        404: {"description": "User not found"},
+        409: {"description": "Email already in use"},
+        400: {"description": "No fields provided for update"},
     },
 )
 def patch_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)):

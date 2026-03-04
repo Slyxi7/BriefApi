@@ -5,19 +5,19 @@ from app.database.connection import get_db
 from app.schemas.formations import FormationCreate, FormationUpdate, FormationRead
 from app.services.formation_service import FormationService
 
-router = APIRouter(prefix="/formations", tags=["Formations"])
+router = APIRouter(prefix="/trainings", tags=["Trainings"])
 
 @router.post(
     "/",
     response_model=FormationRead,
     status_code=201,
-    summary="Créer une formation",
-    description="Crée une nouvelle formation dans la base de données avec son titre et sa description.",
+    summary="Create a training program",
+    description="Creates a new training program in the database with its title and description.",
     responses={
-        201: {"description": "Formation créée avec succès"},
-        400: {"description": "Données invalides"},
-        409: {"description": "Une formation avec ce titre existe déjà"}
-    }
+        201: {"description": "Training program created successfully"},
+        400: {"description": "Invalid data"},
+        409: {"description": "A training program with this title already exists"},
+    },
 )
 def create_formation(payload: FormationCreate, db: Session = Depends(get_db)):
     return FormationService.create_formation(db, payload)
@@ -25,11 +25,9 @@ def create_formation(payload: FormationCreate, db: Session = Depends(get_db)):
 @router.get(
     "/",
     response_model=list[FormationRead],
-    summary="Lister toutes les formations",
-    description="Retourne la liste de toutes les formations disponibles dans la base de données.",
-    responses={
-        200: {"description": "Liste des formations récupérée avec succès"}
-    }
+    summary="List all training programs",
+    description="Returns the list of all available training programs stored in the database.",
+    responses={200: {"description": "Training program list retrieved successfully"}},
 )
 def list_formations(db: Session = Depends(get_db)):
     return FormationService.get_all_formations(db)
@@ -37,12 +35,12 @@ def list_formations(db: Session = Depends(get_db)):
 @router.get(
     "/{formation_id}",
     response_model=FormationRead,
-    summary="Récupérer une formation",
-    description="Retourne les informations d'une formation spécifique à partir de son identifiant.",
+    summary="Get a training program",
+    description="Returns a specific training program by its identifier.",
     responses={
-        200: {"description": "Formation trouvée"},
-        404: {"description": "Formation introuvable"}
-    }
+        200: {"description": "Training program found"},
+        404: {"description": "Training program not found"},
+    },
 )
 def get_formation(formation_id: int, db: Session = Depends(get_db)):
     return FormationService.get_formation_by_id(db, formation_id)
@@ -50,13 +48,13 @@ def get_formation(formation_id: int, db: Session = Depends(get_db)):
 @router.put(
     "/{formation_id}",
     response_model=FormationRead,
-    summary="Mettre à jour une formation",
-    description="Met à jour les informations d'une formation existante à partir de son identifiant.",
+    summary="Update a training program",
+    description="Updates an existing training program using its identifier.",
     responses={
-        200: {"description": "Formation mise à jour avec succès"},
-        404: {"description": "Formation introuvable"},
-        400: {"description": "Données invalides"}
-    }
+        200: {"description": "Training program updated successfully"},
+        404: {"description": "Training program not found"},
+        400: {"description": "Invalid data"},
+    },
 )
 def update_formation(
     formation_id: int,
@@ -68,12 +66,12 @@ def update_formation(
 @router.delete(
     "/{formation_id}",
     status_code=204,
-    summary="Supprimer une formation",
-    description="Supprime une formation existante de la base de données à partir de son identifiant.",
+    summary="Delete a training program",
+    description="Deletes an existing training program from the database using its identifier.",
     responses={
-        204: {"description": "Formation supprimée avec succès"},
-        404: {"description": "Formation introuvable"}
-    }
+        204: {"description": "Training program deleted successfully"},
+        404: {"description": "Training program not found"},
+    },
 )
 def delete_formation(formation_id: int, db: Session = Depends(get_db)):
     return FormationService.delete_formation(db, formation_id)
@@ -81,13 +79,13 @@ def delete_formation(formation_id: int, db: Session = Depends(get_db)):
 @router.patch(
     "/{formation_id}",
     response_model=FormationRead,
-    summary="Mettre à jour partiellement une formation",
-    description="Met à jour un ou plusieurs champs d'une formation existante.",
+    summary="Partially update a training program",
+    description="Updates one or more fields of an existing training program.",
     responses={
-        200: {"description": "Formation mise à jour avec succès"},
-        404: {"description": "Formation introuvable"},
-        400: {"description": "Aucun champ fourni pour la mise à jour"}
-    }
+        200: {"description": "Training program updated successfully"},
+        404: {"description": "Training program not found"},
+        400: {"description": "No fields provided for update"},
+    },
 )
 def patch_formation(
     formation_id: int,

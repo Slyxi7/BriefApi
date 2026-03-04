@@ -11,7 +11,7 @@ class FormationCreate(BaseModel):
     @field_validator("duree")
     def validate_duree(cls, val):
         if val <= 0:
-            raise ValueError("La durée doit être > 0")
+            raise ValueError("Duration must be greater than 0")
         return val
 
 class FormationUpdate(BaseModel):
@@ -25,7 +25,7 @@ class FormationUpdate(BaseModel):
         if val is None:
             return val
         if val <= 0:
-            raise ValueError("La durée doit être > 0")
+            raise ValueError("Duration must be greater than 0")
         return val
 
 class FormationRead(BaseModel):

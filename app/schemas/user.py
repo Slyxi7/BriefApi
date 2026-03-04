@@ -14,19 +14,20 @@ class UserCreate(BaseModel):
     @field_validator("password")
     def validate_password(cls, val):
         if len(val) < 8:
-            raise ValueError("Le mot de passe doit contenir au moins 8 caractères")
+            raise ValueError("Password must contain at least 8 characters")
         
         if not re.search(r"[A-Z]", val):
-            raise ValueError("Le mot de passe doit contenir au moins une majuscule")
+            raise ValueError("Password must contain at least one uppercase letter")
 
         if not re.search(r"[a-z]", val):
-            raise ValueError("Le mot de passe doit contenir au moins une minuscule")
+            raise ValueError("Password must contain at least one lowercase letter")
         
         if not re.search(r"[0-9]", val):
-            raise ValueError("Le mot de passe doit contenir au moins un chiffre")
+            raise ValueError("Password must contain at least one digit")
 
         if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", val):
-            raise ValueError("Le mot de passe doit contenir au moins un symbole")
+            raise ValueError("Password must contain at least one symbol")
+        
         return val
 
 
