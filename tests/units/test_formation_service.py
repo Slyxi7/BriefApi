@@ -1,0 +1,51 @@
+from sqlalchemy.orm import Session
+from app.models.formation import Formation
+
+
+class FormationService:
+
+    @staticmethod
+    def create(db: Session, formation_data):
+        new_f = Formation(
+            titre=formation_data.titre,
+            description=formation_data.description,
+            duree=formation_data.duree,
+            niveau=formation_data.niveau
+        )
+        db.add(new_f)
+        db.commit()
+        db.refresh(new_f)
+        return new_f
+
+    @staticmethod
+    def get_by_id(db: Session, formation_id: int):
+        return db.query(Formation).filter(Formation.id == formation_id).first()
+
+    @staticmethod
+    def get_all(db: Session):
+        return db.query(Formation).all()
+
+    @staticmethod
+    def update(db: Session, formation_id: int, update_data):
+        formation = FormationService.get_by_id(db, formation_id)
+        if not formation:
+            return None
+
+        updates = update_data.model_dump(exclude_unset=True)
+
+        for key, value in updates.items():
+            setattr(formation, key, value)
+
+        db.commit()
+        db.refresh(formation)
+        return formation
+
+    @staticmethod
+    def delete(db: Session, formation_id: int):
+        formation = FormationService.get_by_id(db, formation_id)
+        if not formation:
+            return None
+
+        db.delete(formation)
+        db.commit()
+        return True
