@@ -11,13 +11,13 @@ class SessionsCreate(BaseModel):
     @field_validator("capacite")
     def validate_capacite(cls, val):
         if val <= 0:
-            raise ValueError("La capacité doit être > 0")
+            raise ValueError("Capacity must be greater than 0")
         return val
 
     @field_validator("date_fin")
     def validate_date(cls, val, info):
         if val <= info.data.get("date_debut"):
-            raise ValueError("la date de fin dois etre superieur a la date de debut.")
+            raise ValueError("End date must be greater than start date")
         return val
 
 class SessionsUpdate(BaseModel):
@@ -32,7 +32,7 @@ class SessionsUpdate(BaseModel):
         if val is None:
             return val
         if val <= 0:
-            raise ValueError("La capacité doit être > 0")
+            raise ValueError("Capacity must be greater than 0")
         return val
 
     @field_validator("date_fin")
@@ -40,7 +40,7 @@ class SessionsUpdate(BaseModel):
         if val is None:
             return val
         if val <= info.data.get("date_debut"):
-            raise ValueError("la date de fin dois etre superieur a la date de debut.")
+            raise ValueError("End date must be greater than start date")
         return val
     
 class SessionsRead(BaseModel):

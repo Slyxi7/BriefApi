@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
+
 from app.models.session import Session as SessionModel
 from app.models.formation import Formation
-from fastapi import HTTPException, status
 
 class SessionService:
 
@@ -10,8 +11,14 @@ class SessionService:
         return db.query(SessionModel).all()
 
     @staticmethod
-    def get_session_by_id(db: Session, Sessions_id: int):
-        return db.query(SessionModel).filter(SessionModel.id == Sessions_id).first()
+    def get_session_by_id(db: Session, session_id: int):
+        session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
+        if not session:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Session not found",
+            )
+        return session
 
     @staticmethod
     def get_sessions_by_formation(db: Session, formation_id: int):
@@ -19,11 +26,11 @@ class SessionService:
 
     @staticmethod
     def create_session(db: Session, session_data):
-
-        if not db.query(Formation).filter(Formation.id == session_data.formation_id).first():
+        formation_exists = db.query(Formation).filter(Formation.id == session_data.formation_id).first()
+        if not formation_exists:
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="La formation n'existe pas "
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Training program not found",
             )
 
         new_session = SessionModel(
@@ -39,13 +46,10 @@ class SessionService:
         return new_session
 
     @staticmethod
-    def update_user(db: Session, session_id: int, session_data):
+    def update_session(db: Session, session_id: int, session_data):
         session = SessionService.get_session_by_id(db, session_id)
-        if not session:
-            return None
 
         update_data = session_data.model_dump(exclude_unset=True)
-
         for key, value in update_data.items():
             setattr(session, key, value)
 
@@ -56,23 +60,21 @@ class SessionService:
     @staticmethod
     def delete_session(db: Session, session_id: int):
         session = SessionService.get_session_by_id(db, session_id)
-        if not session:
-            return None
 
         db.delete(session)
         db.commit()
         return True
-    
+
     @staticmethod
     def patch_session(db: Session, session_id: int, session_data):
         session = SessionService.get_session_by_id(db, session_id)
-        if not session:
-            raise HTTPException(status_code=404, detail="Session introuvable")
 
         update_data = session_data.model_dump(exclude_unset=True)
-
         if not update_data:
-            raise HTTPException(status_code=400, detail="Aucun champ fourni pour la mise à jour")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No fields provided for update",
+            )
 
         for key, value in update_data.items():
             setattr(session, key, value)
