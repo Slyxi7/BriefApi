@@ -1,131 +1,250 @@
 # Simplon Training API
 
-Une API RESTful développée avec FastAPI pour la gestion des formations de Simplon.
+API REST développée avec FastAPI pour la gestion des formations dans un
+environnement de formation type Simplon.
 
-## 🚀 Fonctionnalités
+Cette API permet de gérer les formations, les utilisateurs, les sessions
+et les inscriptions via une architecture backend claire basée sur
+FastAPI, SQLAlchemy, Pydantic et Alembic.
 
-- **Gestion des formations** : CRUD complet pour les formations
-- **Système de niveaux** : Débutant, Intermédiaire, Avancé
-- **Base de données** : SQLAlchemy avec PostgreSQL
-- **Tests unitaires** : Pytest pour assurer la qualité du code
-- **Documentation auto-générée** : Swagger/OpenAPI
+------------------------------------------------------------------------
 
-## 📋 Prérequis
+# Fonctionnalités
 
-- Python 3.8+
-- PostgreSQL
-- pip ou poetry
+-   Gestion des utilisateurs
+-   Gestion des formations
+-   Gestion des sessions de formation
+-   Gestion des inscriptions aux sessions
+-   Validation des données avec Pydantic
+-   Documentation automatique de l'API avec Swagger et OpenAPI
+-   Migrations de base de données avec Alembic
+-   Tests unitaires avec Pytest
 
-## 🛠️ Installation
+------------------------------------------------------------------------
 
-1. Cloner le repository :
-```bash
+# Technologies utilisées
+
+-   FastAPI
+-   SQLAlchemy
+-   Pydantic
+-   PostgreSQL
+-   Alembic
+-   Pytest
+-   Uvicorn
+
+------------------------------------------------------------------------
+
+# Prérequis
+
+-   Python 3.10 ou version supérieure
+-   PostgreSQL
+-   pip
+
+------------------------------------------------------------------------
+
+# Installation
+
+## Cloner le repository
+
+``` bash
 git clone <repository-url>
 cd BriefApi
 ```
 
-2. Créer un environnement virtuel :
-```bash
+## Créer un environnement virtuel
+
+Linux / Mac :
+
+``` bash
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# ou
-venv\Scripts\activate  # Windows
+source venv/bin/activate
 ```
 
-3. Installer les dépendances :
-```bash
+Windows :
+
+``` bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+## Installer les dépendances
+
+``` bash
 pip install -r requirements.txt
 ```
 
-4. Configurer la base de données :
-   - Créer une base de données PostgreSQL
-   - Configurer les variables d'environnement (voir section Configuration)
+------------------------------------------------------------------------
 
-## ⚙️ Configuration
+# Configuration
 
 Créer un fichier `.env` à la racine du projet :
 
-```env
-DATABASE_URL=postgresql://username:password@localhost/dbname
-SECRET_KEY=votre-secret-key
+    DATABASE_URL=postgresql://username:password@localhost/briefapi
+    SECRET_KEY=votre-secret-key
+
+Créer ensuite une base PostgreSQL correspondant à l'URL configurée.
+
+------------------------------------------------------------------------
+
+# Migrations de base de données
+
+Le projet utilise Alembic pour gérer les migrations.
+
+## Appliquer les migrations
+
+``` bash
+alembic upgrade head
 ```
 
-## 🏃‍♂️ Lancement
+Cette commande crée les tables dans la base de données.
+
+## Créer une migration après modification d'un modèle
+
+``` bash
+alembic revision --autogenerate -m "description de la migration"
+```
+
+Puis appliquer la migration :
+
+``` bash
+alembic upgrade head
+```
+
+## Vérifier la version actuelle
+
+``` bash
+alembic current
+```
+
+## Revenir à une migration précédente
+
+``` bash
+alembic downgrade -1
+```
+
+------------------------------------------------------------------------
+
+# Lancement de l'application
 
 Démarrer le serveur de développement :
 
-```bash
+``` bash
 uvicorn app.main:app --reload
 ```
 
-L'API sera disponible sur `http://localhost:8000`
+L'API sera accessible à l'adresse :
 
-## 📚 Documentation
+    http://localhost:8000
 
-- **Swagger UI** : `http://localhost:8000/docs`
-- **ReDoc** : `http://localhost:8000/redoc`
+------------------------------------------------------------------------
 
-## 🔗 Endpoints
+# Documentation de l'API
 
-### Formations
+Swagger UI :
 
-- `GET /formations` - Lister toutes les formations
-- `POST /formations` - Créer une nouvelle formation
-- `GET /formations/{id}` - Obtenir une formation par son ID
-- `PUT /formations/{id}` - Mettre à jour une formation
-- `DELETE /formations/{id}` - Supprimer une formation
+    http://localhost:8000/docs
 
-### Exemple de création de formation
+ReDoc :
 
-```json
+    http://localhost:8000/redoc
+
+------------------------------------------------------------------------
+
+# Endpoints principaux
+
+## Utilisateurs
+
+  Méthode   Endpoint      Description
+  --------- ------------- ---------------------------
+  GET       /users        Liste les utilisateurs
+  POST      /users        Crée un utilisateur
+  GET       /users/{id}   Récupère un utilisateur
+  PATCH     /users/{id}   Met à jour un utilisateur
+  DELETE    /users/{id}   Supprime un utilisateur
+
+## Formations
+
+  Méthode   Endpoint           Description
+  --------- ------------------ -----------------------------
+  GET       /formations        Liste toutes les formations
+  POST      /formations        Crée une formation
+  GET       /formations/{id}   Récupère une formation
+  PUT       /formations/{id}   Met à jour une formation
+  DELETE    /formations/{id}   Supprime une formation
+
+## Sessions
+
+  Méthode   Endpoint         Description
+  --------- ---------------- ----------------------
+  GET       /sessions        Liste les sessions
+  POST      /sessions        Crée une session
+  GET       /sessions/{id}   Récupère une session
+
+## Inscriptions
+
+  -------------------------------------------------------------------------------------------
+  Méthode                 Endpoint                                    Description
+  ----------------------- ------------------------------------------- -----------------------
+  POST                    /inscriptions                               Inscrit un utilisateur
+                                                                      à une session
+
+  DELETE                  /inscriptions/{session_id}/{apprenant_id}   Désinscrit un
+                                                                      utilisateur
+
+  GET                     /inscriptions/session/{id}                  Liste les inscrits à
+                                                                      une session
+  -------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# Exemple de requête
+
+Création d'une formation :
+
+``` json
 {
   "titre": "Python pour débutants",
   "description": "Apprendre les bases de la programmation Python",
   "duree": 40,
-  "niveau": "débutant"
+  "niveau": "debutant"
 }
 ```
 
-## 🧪 Tests
+------------------------------------------------------------------------
 
-Lancer les tests unitaires :
+# Tests
 
-```bash
+Lancer les tests :
+
+``` bash
 pytest
 ```
 
-Pour lancer les tests avec coverage :
+Lancer les tests avec couverture :
 
-```bash
+``` bash
 pytest --cov=app
 ```
 
-## 📁 Structure du projet
+------------------------------------------------------------------------
 
-```
-BriefApi/
-├── app/
-│   ├── database/          # Configuration de la base de données
-│   ├── enums/            # Énumérations (niveaux, rôles)
-│   ├── models/           # Modèles SQLAlchemy
-│   ├── routers/          # Routes FastAPI
-│   ├── schemas/          # Schémas Pydantic
-│   ├── services/         # Logique métier
-│   └── main.py           # Point d'entrée de l'application
-├── tests/                # Tests unitaires
-├── requirements.txt       # Dépendances Python
-└── README.md            # Documentation du projet
-```
+# Structure du projet
 
-## 🛠️ Technologies utilisées
-
-- **FastAPI** : Framework web moderne et performant
-- **SQLAlchemy** : ORM pour la base de données
-- **Pydantic** : Validation des données
-- **PostgreSQL** : Base de données relationnelle
-- **Pytest** : Framework de tests
-- **Uvicorn** : Serveur ASGI
-
-## 🤝 Contributeurs
-
-Projet réalisé dans le cadre de la formation Simplon.
+    BriefApi/
+    │
+    ├── app/
+    │   ├── database/
+    │   ├── enums/
+    │   ├── models/
+    │   ├── schemas/
+    │   ├── routers/
+    │   ├── services/
+    │   └── main.py
+    │
+    ├── alembic/
+    │
+    ├── tests/
+    │
+    ├── requirements.txt
+    │
+    └── README.md
