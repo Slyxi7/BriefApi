@@ -5,6 +5,6 @@ from app.models.formation import Formation
 from app.models.session import Session
 from app.models.user import User
 
-engine = create_engine("sqlite:///database.db")
+engine = create_engine("sqlite:///./database.db")
 
 Base.metadata.create_all(bind=engine)
